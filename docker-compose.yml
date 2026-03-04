@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: profit-path-api
+    ports:
+      - "8000:8000"
+    environment:
+      MONGODB_URL: mongodb://mongodb:27017
+      DATABASE_NAME: profitpath
+      SECRET_KEY: ${SECRET_KEY:-profit-path-docker-secret-change-me}
+      APP_ENV: production
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+      LOG_FORMAT: json
+      FRONTEND_ORIGIN: http://localhost:3000
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8000
+      ENABLE_REAL_MARKET_DATA: "true"
+      ENABLE_ML_PREDICTIONS: "true"
+      ENABLE_DATABASE_PERSISTENCE: "true"
+      ENABLE_RECOMMENDATION_CACHING: "true"
+      RATE_LIMIT_PER_MINUTE: "60"
+      RATE_LIMIT_PER_HOUR: "1000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - model_data:/app/ai_engine/saved_models
+    restart: unless-stopped
+    networks:
+      - profit-path-net
+
+  mongodb:
+    image: mongo:5.0
+    container_name: profit-path-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: profitpath
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - profit-path-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: profit-path-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://api:8000
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - profit-path-net
+
+volumes:
+  mongodb_data:
+  model_data:
+
+networks:
+  profit-path-net:
+    driver: bridge

@@ -1,27 +1,65 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
+# Frontend dependencies
+/frontend/node_modules
+/frontend/.next
+/frontend/out
+/frontend/.pnpm-debug.log*
+/frontend/pnpm-lock.yaml
+/frontend/package-lock.json
 
-# next.js
-/.next/
-/out/
+# Backend dependencies & cache
+/backend/__pycache__
+/backend/**/__pycache__
+/backend/.venv
+/backend/venv
+/backend/.pytest_cache
+/backend/dist
+/backend/build
+/backend/*.egg-info
 
-# production
-/build
+# Production builds
+/frontend/build
+/backend/build
 
-# debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
-# env files
-.env*
+# Environment variables
+.env
+.env.local
+.env.*.local
 
-# vercel
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel
 .vercel
 
-# typescript
+# TypeScript
 *.tsbuildinfo
-next-env.d.ts
+/frontend/next-env.d.ts
+
+# ML model artifacts
+/backend/ai_engine/saved_models/*.pkl
+
+# Docker
+docker-compose.override.yml
+
+# Root-level artifacts (legacy)
+node_modules/
+.next/
+bun.lock
+.orchids/
