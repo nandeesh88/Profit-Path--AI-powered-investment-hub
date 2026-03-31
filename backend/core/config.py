@@ -13,7 +13,7 @@ except ImportError:
 
 class Settings(BaseSettings):
     # Application
-    APP_NAME: str = "Profit-Path"
+    APP_NAME: str = "AI-Powered Personal Finance Management Platform"
     APP_ENV: str = "development"
     DEBUG: bool = True
 
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     MONGODB_TIMEOUT: int = 5000
 
     # API Configuration
-    API_TITLE: str = "Profit-Path Investment API"
+    API_TITLE: str = "AI-Powered Personal Finance Management Platform Investment API"
     API_VERSION: str = "1.0.0"
     API_DESCRIPTION: str = "Production-ready investment recommendation engine"
 

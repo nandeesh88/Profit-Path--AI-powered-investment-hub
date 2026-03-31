@@ -45,7 +45,7 @@ export function LoginForm() {
       <div className="p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to your Profit Path account</p>
+          <p className="text-muted-foreground">Sign in to your AI-Powered Personal Finance Management Platform account</p>
         </div>
 
         {error && (

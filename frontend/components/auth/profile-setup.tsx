@@ -32,6 +32,7 @@ export function ProfileSetup({ onComplete }: ProfileSetupProps) {
         monthly_income: parseFloat(monthlyIncome),
         risk_tolerance: riskTolerance,
         financial_goal: 'General savings',
+        age: parseInt(age),
       })
       onComplete?.()
     } catch (err: any) {

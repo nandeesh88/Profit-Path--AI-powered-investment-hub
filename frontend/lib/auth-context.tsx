@@ -10,6 +10,7 @@ export interface User {
   monthly_income: number
   risk_tolerance: 'low' | 'medium' | 'high'
   financial_goal: string
+  age?: number
   created_at: string
 }
 
@@ -24,6 +25,7 @@ interface AuthContextValue {
     monthly_income: number
     risk_tolerance: 'low' | 'medium' | 'high'
     financial_goal: string
+    age?: number
   }) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>

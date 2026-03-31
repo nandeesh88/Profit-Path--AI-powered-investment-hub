@@ -2,8 +2,8 @@ import { SignupForm } from '@/components/auth/signup-form'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Sign Up - Profit Path',
-  description: 'Create a new Profit Path account',
+  title: 'Sign Up - AI-Powered Personal Finance Management Platform',
+  description: 'Create a new AI-Powered Personal Finance Management Platform account',
 }
 
 export default function SignupPage() {

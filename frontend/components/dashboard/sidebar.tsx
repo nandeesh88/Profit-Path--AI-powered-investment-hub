@@ -70,7 +70,7 @@ export function Sidebar() {
         } md:relative md:translate-x-0 z-30`}
       >
         <div className="p-6 border-b border-sidebar-border">
-          <h1 className="text-2xl font-bold text-sidebar-foreground">Profit Path</h1>
+          <h1 className="text-2xl font-bold text-sidebar-foreground">AI-Powered Personal Finance Management Platform</h1>
         </div>
 
         <nav className="p-4 space-y-2">

@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { AddExpenseForm, ExpenseData } from '@/components/expenses/add-expense-form'
 import { ExpenseList } from '@/components/expenses/expense-list'
+import { ReceiptUploadModal } from '@/components/expenses/receipt-upload-modal'
 import { ProtectedRoute } from '@/components/protected-route'
 import { expensesApi } from '@/lib/api'
+import { Upload } from 'lucide-react'
 
 interface Expense {
   id: string
@@ -19,6 +21,7 @@ export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [loading, setLoading] = useState(true)
   const [monthlyTotal, setMonthlyTotal] = useState(0)
+  const [uploadOpen, setUploadOpen] = useState(false)
 
   const fetchExpenses = useCallback(async () => {
     try {
@@ -100,9 +103,19 @@ export default function ExpensesPage() {
         <main className="flex-1 md:ml-0 p-4 md:p-8">
           <div className="max-w-7xl mx-auto">
             {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold text-foreground mb-2">Expense Management</h1>
-              <p className="text-muted-foreground">Track and manage your spending patterns</p>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-4xl font-bold text-foreground mb-2">Expense Management</h1>
+                <p className="text-muted-foreground">Track and manage your spending patterns</p>
+              </div>
+              <button
+                id="upload-receipt-btn"
+                onClick={() => setUploadOpen(true)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap self-start sm:self-auto"
+              >
+                <Upload className="w-4 h-4" />
+                Upload Receipt / Statement
+              </button>
             </div>
 
             {/* Summary Stats */}
@@ -142,6 +155,13 @@ export default function ExpensesPage() {
             onDelete={handleDeleteExpense}
           />
         </div>
+
+        {/* Upload Modal */}
+        <ReceiptUploadModal
+          open={uploadOpen}
+          onOpenChange={setUploadOpen}
+          onExpensesAdded={fetchExpenses}
+        />
       </main>
       </div>
     </ProtectedRoute>

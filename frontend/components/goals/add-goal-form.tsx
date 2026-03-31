@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Plus } from 'lucide-react'
 
 interface AddGoalFormProps {
@@ -20,6 +21,7 @@ export interface GoalData {
   currentAmount: number
   deadline: string
   priority: 'low' | 'medium' | 'high'
+  description?: string
 }
 
 export function AddGoalForm({ onSubmit }: AddGoalFormProps) {
@@ -30,9 +32,24 @@ export function AddGoalForm({ onSubmit }: AddGoalFormProps) {
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium')
   const [isLoading, setIsLoading] = useState(false)
 
+  // Dynamic Sub-fields Tracking
+  const [houseType, setHouseType] = useState('1BHK')
+  const [carBrand, setCarBrand] = useState('')
+  const [carModel, setCarModel] = useState('')
+  const [courseName, setCourseName] = useState('')
+
+  const isHouseGoal = /(house|home|flat|plot|villa|apartment|bhk)/i.test(name)
+  const isVehicleGoal = /(car|bike|vehicle|motorcycle|scooter)/i.test(name)
+  const isEduGoal = /(college|degree|education|study|university)/i.test(name)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+
+    let description = ''
+    if (isHouseGoal) description = `Property Type: ${houseType}`
+    else if (isVehicleGoal && (carBrand || carModel)) description = `Vehicle: ${carBrand} ${carModel}`.trim()
+    else if (isEduGoal && courseName) description = `Course: ${courseName}`
 
     const goal: GoalData = {
       name,
@@ -40,6 +57,7 @@ export function AddGoalForm({ onSubmit }: AddGoalFormProps) {
       currentAmount: currentAmount ? parseFloat(currentAmount) : 0,
       deadline,
       priority,
+      description,
     }
 
     try {
@@ -49,6 +67,10 @@ export function AddGoalForm({ onSubmit }: AddGoalFormProps) {
       setCurrentAmount('')
       setDeadline('')
       setPriority('medium')
+      setHouseType('1BHK')
+      setCarBrand('')
+      setCarModel('')
+      setCourseName('')
     } catch (err) {
       console.error('Failed to create goal:', err)
     } finally {
@@ -75,6 +97,72 @@ export function AddGoalForm({ onSubmit }: AddGoalFormProps) {
               className="bg-white/50 border-white/30 backdrop-blur-sm"
             />
           </div>
+
+          {isHouseGoal && (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              <Label htmlFor="houseType" className="text-foreground font-medium text-sm">
+                Property Type
+              </Label>
+              <Select value={houseType} onValueChange={setHouseType}>
+                <SelectTrigger className="bg-white/50 border-white/30 backdrop-blur-sm h-11">
+                  <SelectValue placeholder="Select property type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1RK">1RK</SelectItem>
+                  <SelectItem value="1BHK">1BHK</SelectItem>
+                  <SelectItem value="2BHK">2BHK</SelectItem>
+                  <SelectItem value="3BHK">3BHK</SelectItem>
+                  <SelectItem value="4BHK+">4BHK+</SelectItem>
+                  <SelectItem value="Villa">Villa / Independent House</SelectItem>
+                  <SelectItem value="Plot">Plot / Land</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {isVehicleGoal && (
+            <div className="grid md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="space-y-2">
+                <Label htmlFor="carBrand" className="text-foreground font-medium text-sm">
+                  Vehicle Brand / Company
+                </Label>
+                <Input
+                  id="carBrand"
+                  placeholder="e.g., Tata, Honda"
+                  value={carBrand}
+                  onChange={(e) => setCarBrand(e.target.value)}
+                  className="bg-white/50 border-white/30 backdrop-blur-sm"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="carModel" className="text-foreground font-medium text-sm">
+                  Vehicle Model
+                </Label>
+                <Input
+                  id="carModel"
+                  placeholder="e.g., Nexon, City"
+                  value={carModel}
+                  onChange={(e) => setCarModel(e.target.value)}
+                  className="bg-white/50 border-white/30 backdrop-blur-sm"
+                />
+              </div>
+            </div>
+          )}
+
+          {isEduGoal && (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              <Label htmlFor="courseName" className="text-foreground font-medium text-sm">
+                Course / Program Name
+              </Label>
+              <Input
+                id="courseName"
+                placeholder="e.g., MBA, B.Tech, Certification"
+                value={courseName}
+                onChange={(e) => setCourseName(e.target.value)}
+                className="bg-white/50 border-white/30 backdrop-blur-sm"
+              />
+            </div>
+          )}
 
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">

@@ -5,8 +5,8 @@ import { ArrowRight } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Sign In - Profit Path',
-  description: 'Sign in to your Profit Path account',
+  title: 'Sign In - AI-Powered Personal Finance Management Platform',
+  description: 'Sign in to your AI-Powered Personal Finance Management Platform account',
 }
 
 export default function LoginPage() {

@@ -12,6 +12,7 @@ interface GoalCardProps {
   currentAmount: number
   deadline: string
   priority: 'low' | 'medium' | 'high'
+  description?: string
   onDelete?: (id: string) => void
 }
 
@@ -28,6 +29,7 @@ export function GoalCard({
   currentAmount,
   deadline,
   priority,
+  description,
   onDelete,
 }: GoalCardProps) {
   const percentage = Math.min((currentAmount / targetAmount) * 100, 100)
@@ -58,6 +60,11 @@ export function GoalCard({
                 >
                   {priority.charAt(0).toUpperCase() + priority.slice(1)} Priority
                 </span>
+                {description && (
+                  <span className="text-xs bg-white/20 text-foreground font-medium px-3 py-1 rounded-full border border-white/40">
+                    {description}
+                  </span>
+                )}
               </div>
             </div>
           </div>

@@ -15,6 +15,7 @@ interface Goal {
   currentAmount: number
   deadline: string
   priority: 'low' | 'medium' | 'high'
+  description?: string
 }
 
 export default function GoalsPage() {
@@ -38,6 +39,7 @@ export default function GoalsPage() {
         currentAmount: g.current_amount,
         deadline: g.target_date,
         priority: g.priority || 'medium',
+        description: g.description,
       }))
       setGoals(data)
 
@@ -71,6 +73,7 @@ export default function GoalsPage() {
         target_date: goal.deadline,
         category: 'Other',
         priority: goal.priority,
+        description: goal.description,
       })
       await fetchGoals()
     } catch (err: any) {

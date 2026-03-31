@@ -60,13 +60,15 @@ MUTUAL_FUND_CODES = {
 }
 
 
+# Global cache to prevent API spam across user requests (saves ~5-10 seconds per API hit)
+_market_data_cache = {}
+
 class MarketDataFetcher:
     """Fetches real stock prices, historical data, and derived metrics."""
     
     def __init__(self, lookback_years: int = 5):
         self.lookback_years = lookback_years
         self.lookback_date = datetime.now() - timedelta(days=lookback_years * 365)
-        self.cache = {}
     
     def fetch_stock_data(
         self,
@@ -75,6 +77,10 @@ class MarketDataFetcher:
         interval: str = "1d"
     ) -> Optional[pd.DataFrame]:
         """Fetch historical OHLCV data for a stock."""
+        cache_key = f"{ticker}_{period}_{interval}"
+        if cache_key in _market_data_cache:
+            return _market_data_cache[cache_key]
+
         try:
             logger.info(f"Fetching data for {ticker}...")
             stock = yf.Ticker(ticker)
@@ -86,6 +92,7 @@ class MarketDataFetcher:
                 logger.warning(f"No data found for {ticker}")
                 return None
             
+            _market_data_cache[cache_key] = hist
             return hist
         except Exception as e:
             logger.error(f"Error fetching {ticker}: {str(e)}")
@@ -209,8 +216,8 @@ def fetch_real_stock_recommendations(
     """Fetch real stock data and return recommendations."""
     fetcher = MarketDataFetcher()
     
-    # Get stocks for the risk level
-    tickers = RECOMMENDED_STOCKS.get(risk_level.capitalize(), [])
+    # Get stocks for the risk level e.g. "Low Risk"
+    tickers = RECOMMENDED_STOCKS.get(f"{risk_level.capitalize()} Risk", [])
     
     # Fetch metrics for all stocks
     metrics_dict = fetcher.get_portfolio_metrics(tickers)
@@ -255,6 +262,11 @@ def get_market_overall_metrics() -> Dict:
         
         metrics = {}
         for name, ticker in indices.items():
+            cache_key = f"idx_metrics_{ticker}"
+            if cache_key in _market_data_cache:
+                metrics[name] = _market_data_cache[cache_key]
+                continue
+
             try:
                 idx = yf.Ticker(ticker)
                 hist = idx.history(period="1y")
@@ -262,10 +274,12 @@ def get_market_overall_metrics() -> Dict:
                     current = hist['Close'].iloc[-1]
                     year_ago = hist['Close'].iloc[0]
                     yoy_return = (current / year_ago - 1) * 100
-                    metrics[name] = {
+                    res = {
                         "current_level": float(current),
                         "yoy_return": float(yoy_return),
                     }
+                    _market_data_cache[cache_key] = res
+                    metrics[name] = res
             except:
                 pass
         

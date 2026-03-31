@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     monthly_income: float = Field(default=0, ge=0)
     risk_tolerance: Literal["low", "medium", "high"] = "medium"
     financial_goal: str = Field(default="General savings", min_length=3, max_length=200)
+    age: Optional[int] = None
 
 
 class UserLogin(BaseModel):
@@ -24,6 +25,7 @@ class UserResponse(BaseModel):
     monthly_income: float
     risk_tolerance: str
     financial_goal: str
+    age: Optional[int] = None
     created_at: datetime
 
     class Config:
@@ -41,3 +43,4 @@ class UserUpdate(BaseModel):
     monthly_income: Optional[float] = None
     risk_tolerance: Optional[Literal["low", "medium", "high"]] = None
     financial_goal: Optional[str] = None
+    age: Optional[int] = None

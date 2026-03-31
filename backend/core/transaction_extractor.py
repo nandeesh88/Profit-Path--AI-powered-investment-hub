@@ -9,13 +9,14 @@ from typing import List, Optional, Tuple
 
 
 DATE_PATTERNS = [
-    r"\b\d{2}[/-]\d{2}[/-]\d{4}\b",
-    r"\b\d{4}[/-]\d{2}[/-]\d{2}\b",
-    r"\b\d{2}\s+[A-Za-z]{3,9}\s+\d{4}\b",
+    r"\d{2}[/\s-]\d{2}[/\s-]\d{4}",
+    r"\d{4}[/\s-]\d{2}[/\s-]\d{2}",
+    r"\d{2}\s+[A-Za-z]{3,9}\s+\d{4}",
+    r"\d{2}[/\s-]\d{2}[/\s-]\d{2}",
 ]
 
 AMOUNT_PATTERN = re.compile(
-    r"(?:INR|Rs\.?|₹)?\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{1,2})|[0-9]+(?:\.[0-9]{1,2})?)",
+    r"(?:INR|Rs\.?|₹)?\s*([0-9]{1,3}(?:,[0-9]{3})*\.[0-9]{1,2}|[0-9]+\.[0-9]{1,2})",
     re.IGNORECASE,
 )
 
@@ -54,7 +55,7 @@ def sha256_bytes(data: bytes) -> str:
 
 
 def parse_date_safe(value: str) -> Optional[date]:
-    formats = ["%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d", "%Y-%m-%d", "%d %b %Y", "%d %B %Y"]
+    formats = ["%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d", "%Y-%m-%d", "%d %b %Y", "%d %B %Y", "%d/%m/%y", "%d-%m-%y", "%d %m %Y", "%d %m %y"]
     for fmt in formats:
         try:
             return datetime.strptime(value.strip(), fmt).date()
@@ -99,10 +100,21 @@ def _extract_reference_id(text: str) -> Optional[str]:
     match = REFERENCE_PATTERN.search(text)
     if match:
         return match.group(1)
+        
+    isolated = re.search(r"\b(\d{9,20})\b", text)
+    if isolated:
+        val = isolated.group(1)
+        if not re.match(r"^[\d.,]+$", val):
+            return val
+        return val
     return None
 
 
 def _extract_merchant(text: str) -> Optional[str]:
+    # Strip any occurrences of dates to prevent them appearing in the merchant string
+    for pattern in DATE_PATTERNS:
+        text = re.sub(pattern, "", text)
+
     hint = MERCHANT_HINT_PATTERN.search(text)
     if hint:
         return hint.group(1).strip(" .,-")
@@ -156,45 +168,72 @@ def extract_text_from_image_bytes(file_bytes: bytes) -> str:
             "Install Tesseract and add it to PATH, or upload a PDF file instead."
         )
 
-    return pytesseract.image_to_string(image)
+    # Force row-by-row extraction for tables instead of column-by-column
+    return pytesseract.image_to_string(image, config='--psm 6 -c preserve_interword_spaces=1')
 
 
 def detect_transactions(raw_text: str) -> List[ExtractedTransaction]:
     lines = _normalize_lines(raw_text)
-    candidates: List[ExtractedTransaction] = []
+    transactions = []
+    current_tx = {"date": None, "merchant": [], "amounts": [], "ref_id": None, "lines": []}
 
     for line in lines:
         line_lower = line.lower()
         if _looks_like_credit(line_lower):
             continue
+            
+        # Ignore literal table header rows
+        if "withdrawal" in line_lower and "balance" in line_lower:
+            continue
 
         date_match: Optional[date] = None
         for pattern in DATE_PATTERNS:
             match = re.search(pattern, line)
-            if not match:
-                continue
-            parsed = parse_date_safe(match.group(0))
-            if parsed:
-                date_match = parsed
-                break
+            if match:
+                parsed = parse_date_safe(match.group(0))
+                if parsed:
+                    date_match = parsed
+                    break
 
         amounts = _extract_amounts(line)
-        if not amounts:
-            continue
-
-        amount = max(amounts)
-        merchant = _extract_merchant(line) or "Card Transaction"
         ref_id = _extract_reference_id(line)
-        tx_date = date_match or _extract_first_date(raw_text) or date.today()
 
+        if date_match and current_tx["date"] and current_tx["amounts"]:
+            transactions.append(current_tx)
+            current_tx = {"date": None, "merchant": [], "amounts": [], "ref_id": None, "lines": []}
+
+        if date_match and not current_tx["date"]:
+            current_tx["date"] = date_match
+
+        if amounts:
+            current_tx["amounts"].extend(amounts)
+
+        if ref_id and not current_tx["ref_id"]:
+            current_tx["ref_id"] = ref_id
+
+        cleaned_text = re.sub(r"[\d/.-]", "", line).strip()
+        if len(cleaned_text) > 3:
+            current_tx["merchant"].append(line)
+
+        current_tx["lines"].append(line)
+
+    if current_tx["date"] and current_tx["amounts"]:
+        transactions.append(current_tx)
+
+    candidates: List[ExtractedTransaction] = []
+    for tx in transactions:
+        amount = tx["amounts"][0]
+        full_text = " ".join(tx["merchant"])
+        merchant = _extract_merchant(full_text) or "Card Transaction"
+        
         candidates.append(
             ExtractedTransaction(
                 amount=amount,
-                transaction_date=tx_date.isoformat(),
+                transaction_date=tx["date"].isoformat(),
                 merchant_name=merchant,
                 transaction_type="debit",
-                bank_reference_id=ref_id,
-                source_line=line,
+                bank_reference_id=tx["ref_id"],
+                source_line=" ".join(tx["lines"])[:200]
             )
         )
 
@@ -207,7 +246,7 @@ def detect_transactions(raw_text: str) -> List[ExtractedTransaction]:
         return []
 
     fallback = ExtractedTransaction(
-        amount=max(amounts),
+        amount=amounts[0],
         transaction_date=fallback_date.isoformat(),
         merchant_name=_extract_merchant(raw_text) or "Bank Transaction",
         transaction_type="debit",

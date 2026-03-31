@@ -8,7 +8,7 @@ import './globals.css'
 const _jakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Profit Path - Intelligent Finance Management',
+  title: 'AI-Powered Personal Finance Management Platform - Intelligent Finance Management',
   description: 'Smart expense tracking, investment recommendations, and automated savings with AI-powered financial guidance',
   generator: 'v0.app',
   icons: {

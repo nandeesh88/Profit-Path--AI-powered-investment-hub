@@ -60,7 +60,7 @@ export function SignupForm() {
       <div className="p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Get Started</h1>
-          <p className="text-muted-foreground">Create your Profit Path account</p>
+          <p className="text-muted-foreground">Create your AI-Powered Personal Finance Management Platform account</p>
         </div>
 
         {error && (

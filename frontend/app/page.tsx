@@ -35,7 +35,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Navigation */}
       <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold text-foreground">Profit Path</h1>
+        <h1 className="text-2xl font-bold text-foreground">AI-Powered Personal Finance Management Platform</h1>
         <div className="flex gap-4">
           <Link href="/login">
             <Button variant="outline">Sign In</Button>
@@ -98,7 +98,7 @@ export default function HomePage() {
       {/* Benefits Section */}
       <section className="bg-primary/5 py-20">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-foreground mb-12 text-center">Why Choose Profit Path?</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-12 text-center">Why Choose AI-Powered Personal Finance Management Platform?</h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="space-y-4">
@@ -147,7 +147,7 @@ export default function HomePage() {
       <footer className="border-t border-white/20 py-8">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-muted-foreground">© 2024 Profit Path. All rights reserved.</p>
+            <p className="text-muted-foreground">© 2024 AI-Powered Personal Finance Management Platform. All rights reserved.</p>
             <div className="flex gap-6">
               <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                 Privacy

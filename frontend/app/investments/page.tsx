@@ -8,6 +8,8 @@ import { investmentsApi, expensesApi, incomeApi } from '@/lib/api'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Slider } from '@/components/ui/slider'
+import { Label } from '@/components/ui/label'
 import {
   TrendingUp,
   PieChart,
@@ -90,6 +92,14 @@ export default function InvestmentsPage() {
   const [error, setError] = useState('')
   const [monthlyIncome, setMonthlyIncome] = useState(0)
   const [monthlyExpense, setMonthlyExpense] = useState(0)
+  const [age, setAge] = useState(30)
+  const [horizon, setHorizon] = useState(5)
+
+  useEffect(() => {
+    if (user?.age) {
+      setAge(user.age)
+    }
+  }, [user?.age])
 
   const fetchRecommendation = async () => {
     setLoading(true)
@@ -124,8 +134,8 @@ export default function InvestmentsPage() {
         savings,
         risk_tolerance: user?.risk_tolerance || 'medium',
         financial_goal: user?.financial_goal || 'General savings',
-        age: 30,
-        investment_horizon_years: 5,
+        age: age,
+        investment_horizon_years: horizon,
       })
 
       setRec(res.data)
@@ -175,6 +185,27 @@ export default function InvestmentsPage() {
                 {loading ? 'Analyzing...' : 'Refresh'}
               </Button>
             </div>
+
+            {/* AI Configuration */}
+            <Card className="p-6 mb-8 flex flex-col lg:flex-row gap-6 items-center justify-between border-primary/20 bg-primary/5">
+              <div className="flex-1 w-full space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Your Age: {age} years</Label>
+                </div>
+                <Slider value={[age]} onValueChange={([v]) => setAge(v)} min={18} max={80} step={1} />
+              </div>
+              <div className="flex-1 w-full space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Investment Horizon: {horizon} years</Label>
+                </div>
+                <Slider value={[horizon]} onValueChange={([v]) => setHorizon(v)} min={1} max={30} step={1} />
+              </div>
+              <div className="w-full lg:w-auto pt-4 lg:pt-0">
+                <Button onClick={fetchRecommendation} disabled={loading} className="w-full lg:w-auto h-12 px-8 shadow-md hover:shadow-lg transition-all text-sm font-semibold tracking-wide">
+                   Re-Analyze
+                </Button>
+              </div>
+            </Card>
 
             {error && (
               <Card className="p-6 mb-8 border-destructive/50 bg-destructive/5">
@@ -314,7 +345,8 @@ export default function InvestmentsPage() {
                     {rec.stock_recommendations.map((stock, i) => (
                       <Card
                         key={i}
-                        className={`p-5 border-2 ${riskBorder[stock.risk_level] || ''} hover:shadow-lg transition-shadow`}
+                        className={`p-5 border-2 ${riskBorder[stock.risk_level] || ''} hover:shadow-lg transition-shadow cursor-pointer hover:border-accent/40`}
+                        onClick={() => window.open(`https://www.google.com/search?q=${stock.ticker} stock price`, '_blank')}
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div>
@@ -338,7 +370,10 @@ export default function InvestmentsPage() {
                               </p>
                             </div>
                           ) : (
-                            <div />
+                            <div>
+                               <p className="text-xs text-muted-foreground">Current Price</p>
+                               <p className="font-semibold text-muted-foreground text-sm">N/A (Mkt Rate)</p>
+                            </div>
                           )}
                           <div className="text-right">
                             <p className="text-xs text-muted-foreground">Expected Return</p>
@@ -363,7 +398,8 @@ export default function InvestmentsPage() {
                     {rec.mutual_fund_recommendations.map((mf, i) => (
                       <Card
                         key={i}
-                        className={`p-5 border-2 ${riskBorder[mf.risk_level] || ''} hover:shadow-lg transition-shadow`}
+                        className={`p-5 border-2 ${riskBorder[mf.risk_level] || ''} hover:shadow-lg transition-shadow cursor-pointer hover:border-accent/40`}
+                        onClick={() => window.open(`https://www.google.com/search?q=${mf.fund_name || mf.fund_type} mutual fund value`, '_blank')}
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">

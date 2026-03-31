@@ -10,6 +10,7 @@ def user_helper(user: dict) -> dict:
         "monthly_income": user["monthly_income"],
         "risk_tolerance": user["risk_tolerance"],
         "financial_goal": user["financial_goal"],
+        "age": user.get("age"),
         "created_at": user.get("created_at", datetime.utcnow()),
     }
 

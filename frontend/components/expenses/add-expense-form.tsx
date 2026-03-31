@@ -42,6 +42,7 @@ export interface ExpenseData {
   transaction_type?: 'debit'
   bank_reference_id?: string
   source_document_id?: string
+  upload_id?: string
 }
 
 export function AddExpenseForm({ onSubmit }: AddExpenseFormProps) {
