@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Plus } from 'lucide-react'
+import { expensesApi } from '@/lib/api'
 
 const categories = [
   { value: 'Food & Dining', label: 'Food & Dining' },
@@ -30,7 +31,7 @@ const categories = [
 ]
 
 interface AddExpenseFormProps {
-  onSubmit?: (expense: ExpenseData) => void
+  onSubmit?: (expense: ExpenseData) => Promise<void> | void
 }
 
 export interface ExpenseData {
@@ -38,6 +39,9 @@ export interface ExpenseData {
   amount: number
   category: string
   date: string
+  transaction_type?: 'debit'
+  bank_reference_id?: string
+  source_document_id?: string
 }
 
 export function AddExpenseForm({ onSubmit }: AddExpenseFormProps) {
@@ -45,6 +49,7 @@ export function AddExpenseForm({ onSubmit }: AddExpenseFormProps) {
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState('')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [bankReferenceId, setBankReferenceId] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,19 +61,20 @@ export function AddExpenseForm({ onSubmit }: AddExpenseFormProps) {
       amount: parseFloat(amount),
       category,
       date,
+      transaction_type: 'debit',
+      bank_reference_id: bankReferenceId || undefined,
     }
 
     try {
-      console.log('Adding expense:', expense)
-      setTimeout(() => {
-        setIsLoading(false)
-        onSubmit?.(expense)
-        setDescription('')
-        setAmount('')
-        setCategory('')
-        setDate(new Date().toISOString().split('T')[0])
-      }, 500)
+      await onSubmit?.(expense)
+      setDescription('')
+      setAmount('')
+      setCategory('')
+      setDate(new Date().toISOString().split('T')[0])
+      setBankReferenceId('')
     } catch (err) {
+      console.error('Failed to submit expense:', err)
+    } finally {
       setIsLoading(false)
     }
   }
@@ -144,6 +150,19 @@ export function AddExpenseForm({ onSubmit }: AddExpenseFormProps) {
                 className="bg-white/50 border-white/30 backdrop-blur-sm"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="bankRef" className="text-foreground font-medium">
+              Bank Reference ID (Optional)
+            </Label>
+            <Input
+              id="bankRef"
+              placeholder="e.g., UTR123456789"
+              value={bankReferenceId}
+              onChange={(e) => setBankReferenceId(e.target.value)}
+              className="bg-white/50 border-white/30 backdrop-blur-sm"
+            />
           </div>
 
           <Button

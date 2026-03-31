@@ -138,10 +138,24 @@ http://localhost:8000/api/v1
 ### Expense Endpoints (`/expenses`)
 - `GET /expenses` - List all expenses
 - `POST /expenses` - Create new expense
+- `POST /expenses/upload-extract` - Upload bank receipt/statement and extract debit transactions
+- `POST /expenses/from-extraction` - Create an expense linked to an uploaded document
 - `GET /expenses/{expense_id}` - Get expense details
 - `PUT /expenses/{expense_id}` - Update expense
 - `DELETE /expenses/{expense_id}` - Delete expense
 - `GET /expenses/stats` - Get expense statistics
+
+### OCR Runtime Requirements
+
+The upload extraction feature supports PDF and image documents:
+
+- PDF parsing uses `pypdf`
+- Image OCR uses `pytesseract` and requires the Tesseract binary installed on the host machine
+
+Windows install hint:
+
+1. Install Tesseract OCR from UB Mannheim or official distribution.
+2. Ensure the install path is in your `PATH` (or configure `pytesseract.pytesseract.tesseract_cmd`).
 
 ### Goal Endpoints (`/goals`)
 - `GET /goals` - List all goals

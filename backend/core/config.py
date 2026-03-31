@@ -1,5 +1,14 @@
-from pydantic_settings import BaseSettings
 from typing import Optional, List
+
+try:
+    # Preferred for pydantic v2
+    from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore
+    _USING_PYDANTIC_SETTINGS = True
+except ImportError:
+    # Fallback for environments that only have pydantic installed
+    from pydantic import BaseSettings  # type: ignore
+    SettingsConfigDict = None
+    _USING_PYDANTIC_SETTINGS = False
 
 
 class Settings(BaseSettings):
@@ -62,9 +71,12 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.APP_ENV == "production"
 
-    class Config:
-        env_file = ".env"
-        extra = "allow"
+    if _USING_PYDANTIC_SETTINGS and SettingsConfigDict is not None:
+        model_config = SettingsConfigDict(env_file=".env", extra="allow")
+    else:
+        class Config:
+            env_file = ".env"
+            extra = "allow"
 
 
 settings = Settings()

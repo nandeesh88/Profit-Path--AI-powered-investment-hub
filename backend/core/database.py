@@ -65,7 +65,13 @@ async def create_indexes():
 
         expenses = get_collection("expenses")
         await expenses.create_index([("user_id", 1), ("date", -1)])
+        await expenses.create_index([("user_id", 1), ("date", 1), ("amount", 1), ("description", 1)])
         logger.info("✅ Expense indexes created")
+
+        expense_documents = get_collection("expense_documents")
+        await expense_documents.create_index([("user_id", 1), ("created_at", -1)])
+        await expense_documents.create_index([("user_id", 1), ("sha256", 1)])
+        logger.info("✅ Expense document indexes created")
 
         goals = get_collection("goals")
         await goals.create_index([("user_id", 1)])

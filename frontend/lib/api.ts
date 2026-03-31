@@ -61,8 +61,32 @@ export const usersApi = {
 export const expensesApi = {
   list: () => api.get('/expenses'),
   summary: () => api.get('/expenses/summary'),
-  create: (data: { description: string; amount: number; category: string; date: string }) =>
+  create: (data: {
+    description: string
+    amount: number
+    category: string
+    date: string
+    transaction_type?: 'debit'
+    bank_reference_id?: string
+    source_document_id?: string
+  }) =>
     api.post('/expenses', data),
+  uploadAndExtract: (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/expenses/upload-extract', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+  createFromExtraction: (data: {
+    upload_id: string
+    description: string
+    amount: number
+    category: string
+    date: string
+    transaction_type?: 'debit'
+    bank_reference_id?: string
+  }) => api.post('/expenses/from-extraction', data),
   update: (id: string, data: Partial<{ description: string; amount: number; category: string; date: string }>) =>
     api.put(`/expenses/${id}`, data),
   delete: (id: string) => api.delete(`/expenses/${id}`),

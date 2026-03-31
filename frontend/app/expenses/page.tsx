@@ -48,12 +48,27 @@ export default function ExpensesPage() {
 
   const handleAddExpense = async (expense: ExpenseData) => {
     try {
-      await expensesApi.create({
-        description: expense.description,
-        amount: expense.amount,
-        category: expense.category,
-        date: expense.date,
-      })
+      if (expense.upload_id) {
+        await expensesApi.createFromExtraction({
+          upload_id: expense.upload_id,
+          description: expense.description,
+          amount: expense.amount,
+          category: expense.category,
+          date: expense.date,
+          transaction_type: 'debit',
+          bank_reference_id: expense.bank_reference_id,
+        })
+      } else {
+        await expensesApi.create({
+          description: expense.description,
+          amount: expense.amount,
+          category: expense.category,
+          date: expense.date,
+          transaction_type: 'debit',
+          bank_reference_id: expense.bank_reference_id,
+          source_document_id: expense.source_document_id,
+        })
+      }
       await fetchExpenses()
     } catch (err: any) {
       console.error('Failed to add expense:', err)

@@ -22,6 +22,9 @@ def expense_helper(expense: dict) -> dict:
         "amount": expense["amount"],
         "category": expense["category"],
         "date": expense["date"],
+        "transaction_type": expense.get("transaction_type", "debit"),
+        "bank_reference_id": expense.get("bank_reference_id"),
+        "source_document_id": str(expense.get("source_document_id")) if expense.get("source_document_id") else None,
         "created_at": expense.get("created_at", datetime.utcnow()),
     }
 

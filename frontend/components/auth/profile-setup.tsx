@@ -18,25 +18,9 @@ export function ProfileSetup({ onComplete }: ProfileSetupProps) {
   const [age, setAge] = useState('')
   const [monthlyIncome, setMonthlyIncome] = useState('')
   const [riskTolerance, setRiskTolerance] = useState<'low' | 'medium' | 'high'>('medium')
-  const [goals, setGoals] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const { updateUser } = useAuth()
-
-  const financialGoalOptions = [
-    { id: 'house', label: 'Buy a House' },
-    { id: 'retirement', label: 'Retirement Planning' },
-    { id: 'education', label: 'Education Fund' },
-    { id: 'emergency', label: 'Emergency Fund' },
-    { id: 'investment', label: 'Investment Growth' },
-    { id: 'travel', label: 'Travel Fund' },
-  ]
-
-  const toggleGoal = (goalId: string) => {
-    setGoals((prev) =>
-      prev.includes(goalId) ? prev.filter((g) => g !== goalId) : [...prev, goalId]
-    )
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,15 +28,10 @@ export function ProfileSetup({ onComplete }: ProfileSetupProps) {
     setError('')
 
     try {
-      const goalLabels = goals
-        .map((id) => financialGoalOptions.find((o) => o.id === id)?.label)
-        .filter(Boolean)
-        .join(', ')
-
       await updateUser({
         monthly_income: parseFloat(monthlyIncome),
         risk_tolerance: riskTolerance,
-        financial_goal: goalLabels || 'General savings',
+        financial_goal: 'General savings',
       })
       onComplete?.()
     } catch (err: any) {
@@ -143,29 +122,9 @@ export function ProfileSetup({ onComplete }: ProfileSetupProps) {
               </RadioGroup>
             </div>
 
-            <div className="space-y-4">
-              <Label className="text-foreground font-medium">Financial Goals (Select all that apply)</Label>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {financialGoalOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => toggleGoal(option.id)}
-                    className={`p-3 rounded-lg border-2 transition-all text-left ${
-                      goals.includes(option.id)
-                        ? 'border-accent bg-accent/10'
-                        : 'border-border bg-white/50 hover:bg-white/70'
-                    }`}
-                  >
-                    <div className="font-medium text-foreground">{option.label}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <Button
               type="submit"
-              disabled={isLoading || !age || !monthlyIncome || goals.length === 0}
+              disabled={isLoading || !age || !monthlyIncome}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11"
             >
               {isLoading ? 'Setting up...' : 'Complete Setup'}
