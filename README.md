@@ -4,21 +4,9 @@
 
 ---
 
-## 📋 Table of Contents
+## 🎬 Demo Video
 
-- [Project Overview](#-project-overview)
-- [Key Features](#-key-features)
-- [Tech Stack](#-tech-stack)
-- [System Architecture](#-system-architecture)
-- [Machine Learning Pipeline](#-machine-learning-pipeline)
-- [API Documentation](#-api-documentation)
-- [Database Schema](#-database-schema)
-- [Frontend Pages & Components](#-frontend-pages--components)
-- [Infrastructure & Deployment](#-infrastructure--deployment)
-- [Getting Started](#-getting-started)
-- [Project Structure](#-project-structure)
-- [Environment Variables](#-environment-variables)
-- [Screenshots](#-screenshots)
+[Watch the demo video](https://drive.google.com/file/d/10YwU-aVX92OjwU0Prdt91kZz4nCfJl1E/view?usp=drive_link)
 
 ---
 
